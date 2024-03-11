@@ -13,6 +13,8 @@ email_from = "pravdev10@gmail.com"
 company_name = "ServiceNow"
 
 email_list = [
+    {"name" : "name@gmail.com"},
+    {"name2" : "name2@gmail.com"}
 ]
 
 
