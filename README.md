@@ -37,6 +37,28 @@ Welcome to my curated collection of scripts designed to revolutionize the way yo
 
 **Streamline Your Network:** Clean up your LinkedIn network by withdrawing multiple pending connection requests. Navigate to your network tab, and let the script do the heavy lifting, focusing on older, unaccepted requests to keep your connections relevant and professional.
 
+## ✉️ Automated Email Outreach
+
+The following scripts allow you to send personalized and AI generated emails to multiple people at once.
+
+Installation Steps:
+
+1. Install Ollama and its Python library: `pip install ollama`
+2. Download the model of your choice and include it in `model.py`.
+3. Include the details of the people to whom you want to send the email in the `email_list`.
+4. Create a virtual environment using the `python -m venv .env` command and activate the virtual environment.
+5. Set the Gmail app password using `set GMAIL_APP_PASSWORD='your_password'`.
+
+### 📧 `ai-generated-emails/send_emails.py`
+
+**Effortless Email Campaigns:** Sends AI-generated emails from a pre-defined template to people of your choice.
+
+### 📑 `ai-generated-emails/generate_emails.py`
+
+**Streamlined Email Generation:** Creates a JSON file of the generated emails for each person of a particular company. Generates multiple JSON files for multiple companies.
+
+
+
 ---
 
 ## Connect With Me
