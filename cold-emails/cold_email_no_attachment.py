@@ -6,17 +6,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-smtp_port = 587                
-smtp_server = "smtp.gmail.com"  
+smtp_port = 587
+smtp_server = "smtp.gmail.com"
 
-email_from = "pravdev10@gmail.com"
+email_from = "YOUR EMAIL"
 company_name = "ServiceNow"
 
 email_list = [
-    {"name" : "name@gmail.com"},
-    {"name2" : "name2@gmail.com"}
+    {"name": "Recipient One", "email": "recipient1@example.com"},
+    {"name": "Recipient Two", "email": "recipient2@example.com"}
 ]
-
 
 password = os.getenv("GMAIL_APP_PASSWORD")
 
@@ -34,7 +33,7 @@ def send_emails(email_list):
         body = f"""
         Hello {first_name},
 
-        I noticed that you are working at {company_name}. I'm a CS grad from GMU looking for new opportunities and wonder if you could refer me to various positions at {company_name}.
+        I noticed that you are working at {company_name}. I'm a CS grad looking for new opportunities and wonder if you could refer me to various positions at {company_name}.
         
         The Job IDs:
         
@@ -43,12 +42,11 @@ def send_emails(email_list):
         3. Software Engineer - JB0045871
         
         Thank you,
-        Praneeth Ravuri
-        Ph: +1 571-622-8648
-        LinkedIn: https://www.linkedin.com/in/prav25/
-        Website: https://praneethravuri.com/
-        GitHub: https://github.com/praneethravuri
-        
+        [Your Name]
+        Ph: [Your Phone Number]
+        LinkedIn: [Your LinkedIn URL]
+        Website: [Your Website URL]
+        GitHub: [Your GitHub URL]
         """
 
         msg = MIMEMultipart()

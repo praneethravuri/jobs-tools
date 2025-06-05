@@ -4,10 +4,10 @@ from email.mime.multipart import MIMEMultipart
 import os
 from model import rephrase_content
 
-smtp_port = 587                
-smtp_server = "smtp.gmail.com"  
+smtp_port = 587
+smtp_server = "smtp.gmail.com"
 
-email_from = "pravdevrav@gmail.com"
+email_from = os.getenv('EMAIL_FROM')  # Hide email in environment variable
 email_list = [
     {'name': 'Test1', 'email': 'Test1@gmail.com', 'company': 'TEst_Company', 'position': 'Software Engineer'},
     {'name': 'Test20', 'email': 'Test21@gmail.com', 'company': 'TEst2_Company', 'position': 'Software Engineer'}
@@ -21,7 +21,7 @@ def send_emails(email_list):
     template_body = """
 Hi {name},
 
-My name is Praneeth Ravuri, and I am writing to express my interest in potential opportunities at {company}. I am a {position} with a strong background in developing scalable applications and a passion for leveraging technology to create impactful solutions. I hold a Master's degree in Computer Science from George Mason University.
+My name is [REDACTED], and I am writing to express my interest in potential opportunities at {company}. I am a {position} with a strong background in developing scalable applications and a passion for leveraging technology to create impactful solutions. I hold a Master's degree in Computer Science from [REDACTED].
 
 My technical skills include Python, JavaScript, TypeScript, React, Next.js, and MongoDB, among others. I have worked on diverse projects, including machine learning and full stack applications. I am particularly impressed by {company}'s commitment to partnering with entrepreneurs from idea to IPO and your focus on fostering innovative, AI-driven companies.
 
@@ -33,11 +33,11 @@ Thank you for considering my application. I look forward to the possibility of d
 
     contact_info = """
 Best regards,
-Praneeth Ravuri
-Website: praneethravuri[dot]com
-Phone: +1 571 622 8648
-LinkedIn: linkedin[dot]com/in/prav25
-GitHub: github[dot]com/praneethravuri
+[REDACTED]
+Website: [REDACTED]
+Phone: [REDACTED]
+LinkedIn: [REDACTED]
+GitHub: [REDACTED]
 """
 
     for person in email_list:
