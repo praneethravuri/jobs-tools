@@ -1,63 +1,255 @@
-# 🚀 Elevate Your Job Search with Automated Tools!
+# 🚀 Job Search Automation Toolkit
 
-Welcome to my curated collection of scripts designed to revolutionize the way you connect with professionals on LinkedIn, streamline your email outreach, organize your job applications, and maintain a tidy LinkedIn network. These tools have been meticulously crafted to save time and increase efficiency in your daily job search efforts.
+A comprehensive, well-organized collection of tools to supercharge your job search. Features automated LinkedIn outreach, AI-powered email campaigns, resume management, and H1B visa sponsorship research.
 
-## Connect and Engage on LinkedIn with Ease
+## 📁 Project Structure
 
-### 📬 `referral-linkedin/referral.js`
+```
+jobs-tools/
+├── src/
+│   ├── email/
+│   │   ├── ai_generated/        # AI-powered personalized emails
+│   │   └── cold_outreach/       # Cold email campaigns
+│   ├── linkedin/                # LinkedIn automation scripts
+│   ├── resume/
+│   │   ├── generator/           # Resume generation from JSON
+│   │   └── organizer/           # Resume file organization
+│   └── scraping/                # H1B company data scraper
+├── pyproject.toml               # uv package configuration
+├── .gitignore
+├── LICENSE
+└── README.md
+```
 
-**Quickly Personalize Messages:** Choose your target audience—recruiters or employees—and customize your message with the company name, job ID, and more. Simply navigate to the person's LinkedIn profile, open the console tab in Developer Tools, and paste the code for instant messaging.
+## 🚀 Getting Started
 
-**Troubleshooting Tips:** If the first attempt doesn't succeed, refresh the page and try again.
+### Installation
 
-### 🌐 `referral-linkedin/multipleReferrals.js`
+This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management:
 
-**Mass Messaging Made Simple:** Perfect for reaching out to numerous profiles at once. Visit the company's LinkedIn page, filter by location and position as needed, and use the console tab to launch your campaign. Set a connection limit to ensure you don't overextend your network outreach.
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-## 📧 Revolutionize Your Cold Email Strategy
+# Create virtual environment and install dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e .
+```
 
-### `cold-email/cold_email_no_attachment.py` & `cold-email/cold_email_with_attachment.py`
+### Environment Setup
 
-**Seamless Email Campaigns:** Whether you're sending emails with or without attachments, these scripts make it effortless. After installing the necessary libraries and customizing your message, simply store your Gmail app password securely in a `.env` file. Begin reaching out to recruiters and employers without the hassle.
+Create a `.env` file in the project root:
 
-## 🌟 Discover Companies Sponsoring H1b Visas
+```bash
+GMAIL_APP_PASSWORD=your_gmail_app_password
+EMAIL_FROM=your_email@gmail.com
+```
 
-**Effortless Information Gathering:** With just a few clicks, run the `h1b-companies-scraper/scrape_for_companies.py` script after installing the required libraries. Dive into a treasure trove of companies open to sponsoring H1b visas.
+---
 
-## Organize Your Tailored Resumes
+## 📧 Email Outreach
 
-### 🗂 `save-modified-resume/save_resume.py`
+### AI-Generated Personalized Emails
 
-**Keep Your Applications Organized:** This script allows you to systematically save your customized resumes by company name and position in a designated folder. Define your working and save locations in the script, run it, and follow the prompts for a neatly organized job application process.
+**Location:** `src/email/ai_generated/`
 
-## Manage Your LinkedIn Connections
+Leverage local AI models (via Ollama) to generate personalized, professional outreach emails at scale.
 
+#### `generate_emails.py`
+Generates customized emails for multiple recipients and saves them as JSON files organized by company.
 
-### 🧑‍💻`withdraw-multiple-connection-requests/withdrawConnectionRequest.js`
+```bash
+python src/email/ai_generated/generate_emails.py
+```
 
-**Streamline Your Network:** Clean up your LinkedIn network by withdrawing multiple pending connection requests. Navigate to your network tab, and let the script do the heavy lifting, focusing on older, unaccepted requests to keep your connections relevant and professional.
+#### `send_emails.py`
+Sends AI-generated emails with personalized content to your contact list.
 
-## ✉️ Automated Email Outreach
+```bash
+python src/email/ai_generated/send_emails.py
+```
 
-The following scripts allow you to send personalized and AI generated emails to multiple people at once.
+**Requirements:**
+- Install [Ollama](https://ollama.ai) and download your preferred model (e.g., `phi3`)
+- Set `GMAIL_APP_PASSWORD` in your `.env` file
 
-Installation Steps:
+### Cold Email Outreach
 
-1. Install Ollama and its Python library: `pip install ollama`
-2. Download the model of your choice and include it in `model.py`.
-3. Include the details of the people to whom you want to send the email in the `email_list`.
-4. Create a virtual environment using the `python -m venv .env` command and activate the virtual environment.
-5. Set the Gmail app password using `set GMAIL_APP_PASSWORD='your_password'`.
+**Location:** `src/email/cold_outreach/`
 
-### 📧 `ai-generated-emails/send_emails.py`
+Send targeted cold emails to recruiters and potential referrers.
 
-**Effortless Email Campaigns:** Sends AI-generated emails from a pre-defined template to people of your choice.
+#### `send_without_attachment.py`
+Send plain text emails for quick, lightweight outreach.
 
-### 📑 `ai-generated-emails/generate_emails.py`
+```bash
+python src/email/cold_outreach/send_without_attachment.py
+```
 
-**Streamlined Email Generation:** Creates a JSON file of the generated emails for each person of a particular company. Generates multiple JSON files for multiple companies.
+#### `send_with_attachment.py`
+Send emails with resume attachments for formal applications.
 
+```bash
+python src/email/cold_outreach/send_with_attachment.py
+```
 
+---
+
+## 🔗 LinkedIn Automation
+
+**Location:** `src/linkedin/`
+
+Browser console scripts for automating LinkedIn networking tasks.
+
+### `referral_single.js`
+Send personalized connection requests or messages to individual profiles. Navigate to a LinkedIn profile, open DevTools console, and paste the script.
+
+**Features:**
+- Target recruiters or employees
+- Customize messages with company name and job ID
+- Quick, one-click messaging
+
+### `referral_multiple.js`
+Automated mass outreach to multiple profiles on a company page.
+
+**Usage:**
+1. Visit a company's LinkedIn page
+2. Filter by location and position
+3. Open DevTools console and paste the script
+4. Set connection limits to manage outreach volume
+
+**Tip:** Start with smaller batches (10-20) to avoid LinkedIn rate limits.
+
+### `withdraw_connections.js`
+Bulk withdraw pending connection requests to keep your network clean and professional.
+
+**Usage:**
+1. Navigate to LinkedIn → My Network → Manage sent requests
+2. Open DevTools console
+3. Paste and run the script
+
+---
+
+## 📄 Resume Tools
+
+### Resume Generator
+
+**Location:** `src/resume/generator/create_docx.py`
+
+Generate professionally formatted `.docx` resumes from JSON data.
+
+```bash
+python src/resume/generator/create_docx.py
+```
+
+**Features:**
+- Custom formatting with proper spacing and alignment
+- Sections: Work Experience, Education, Skills, Projects
+- Professional styling with Calibri font
+
+### Resume Organizer
+
+**Location:** `src/resume/organizer/save_resume.py`
+
+Automatically organize tailored resumes by company and position.
+
+```bash
+python src/resume/organizer/save_resume.py
+```
+
+**What it does:**
+- Creates folders named `CompanyName-Position`
+- Copies your resume from Desktop to `~/Documents/saved-applications/`
+- Maintains organized archive of all applications
+
+---
+
+## 🔍 H1B Visa Sponsorship Research
+
+**Location:** `src/scraping/h1b_companies.py`
+
+Scrape and download data about companies that sponsor H1B visas.
+
+```bash
+python src/scraping/h1b_companies.py
+```
+
+**Output:** Creates `companies.csv` with company names, locations, and H1B filing statistics.
+
+---
+
+## 📝 Best Practices & Tips
+
+### Email Outreach
+- Always test with a small batch before sending to large lists
+- Personalize templates for each company/role
+- Track response rates to optimize messaging
+- Respect unsubscribe requests and email frequency limits
+
+### LinkedIn Automation
+- Use LinkedIn automation responsibly to avoid account restrictions
+- Limit bulk actions to 20-30 connections per session
+- Always personalize messages when possible
+- Wait 24-48 hours between bulk automation sessions
+
+### Resume Management
+- Keep a master JSON file with all your experience
+- Tailor bullet points for each application
+- Maintain backups of all customized resumes
+- Use consistent naming: `CompanyName-Position`
+
+---
+
+## ⚙️ Configuration Examples
+
+### Email List Format (for AI-generated emails)
+
+```python
+email_list = [
+    {
+        'name': 'John Doe',
+        'email': 'john@company.com',
+        'company': 'TechCorp',
+        'position': 'Software Engineer'
+    },
+]
+```
+
+### Resume JSON Structure
+
+See `src/resume/generator/create_docx.py` for the expected JSON schema with sections for header, work_experience, education, skills, and projects.
+
+---
+
+## 🛠️ Development
+
+### Adding New Tools
+
+```bash
+# Create a new module
+mkdir -p src/your_module
+touch src/your_module/your_script.py
+
+# Add dependencies if needed
+uv pip install new-package
+```
+
+### Running Tests
+
+```bash
+uv pip install -e ".[dev]"
+pytest
+```
+
+---
+
+## ⚠️ Important Notes
+
+- **LinkedIn Automation:** Use at your own risk. LinkedIn's terms of service prohibit automation. These scripts are educational and should be used responsibly.
+- **Email Sending:** Gmail has daily sending limits (typically 500 emails/day for regular accounts). Monitor your quota.
+- **API Keys:** Never commit `.env` files or API keys to version control.
+- **H1B Data:** Information scraped from h1bdata.info is for research purposes only.
 
 ---
 

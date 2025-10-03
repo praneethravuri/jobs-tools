@@ -1,0 +1,51 @@
+[project]
+name = "jobs-tools"
+version = "1.0.0"
+description = "Automated tools for job search, LinkedIn outreach, email campaigns, and resume management"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Praneeth Ravuri", email = "pravdev10@gmail.com" }
+]
+keywords = ["job-search", "automation", "linkedin", "email", "resume"]
+
+dependencies = [
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "openai>=1.0.0",
+    "python-docx>=1.1.0",
+    "ollama>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/prav25/jobs-tools"
+Repository = "https://github.com/prav25/jobs-tools"
+Documentation = "https://github.com/prav25/jobs-tools#readme"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
