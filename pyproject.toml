@@ -17,6 +17,8 @@ dependencies = [
     "openai>=1.0.0",
     "python-docx>=1.1.0",
     "ollama>=0.1.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
 ]
 
 [project.optional-dependencies]

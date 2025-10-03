@@ -1,19 +1,40 @@
-# create_resume_docx.py
+"""
+Generate professionally formatted DOCX resumes from JSON data.
+
+This module provides functionality to convert structured resume data (JSON or
+Pydantic models) into beautifully formatted Microsoft Word documents with
+proper styling, spacing, and layout.
+"""
 
 import json
 import logging
+from pathlib import Path
+from typing import Union
 from docx import Document
 from docx.enum.text import WD_TAB_ALIGNMENT, WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
+from src.models.resume import Resume
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
-def add_horizontal_line(paragraph):
+def add_horizontal_line(paragraph) -> None:
     """
-    Applies a single bottom border to the given paragraph, creating a horizontal line.
+    Add a horizontal line below a paragraph using a bottom border.
+
+    This function adds styling to create a visual separator line beneath
+    section headings in the resume document.
+
+    Args:
+        paragraph: docx.text.paragraph.Paragraph object to add border to
     """
     p = paragraph._p
     pPr = p.get_or_add_pPr()
@@ -28,11 +49,28 @@ def add_horizontal_line(paragraph):
     logger.debug("Added horizontal line to paragraph.")
 
 
-def make_two_column_paragraph(doc, left_text, right_text, bold_left=False, italic_left=False):
+def make_two_column_paragraph(
+    doc,
+    left_text: str,
+    right_text: str,
+    bold_left: bool = False,
+    italic_left: bool = False
+):
     """
-    Creates one paragraph with a right-aligned tab stop.
-    The left_text (optionally bold/italic) appears at the left;
-    the right_text is pushed to the right margin.
+    Create a two-column paragraph with left and right-aligned text.
+
+    This function creates a single paragraph with text on the left and right sides,
+    commonly used for company names and locations, or job titles and dates.
+
+    Args:
+        doc: docx.Document object
+        left_text: Text to appear on the left side
+        right_text: Text to appear on the right side
+        bold_left: Whether to bold the left text
+        italic_left: Whether to italicize the left text
+
+    Returns:
+        Created paragraph object
     """
     para = doc.add_paragraph()
     para_format = para.paragraph_format
@@ -54,9 +92,18 @@ def make_two_column_paragraph(doc, left_text, right_text, bold_left=False, itali
     return para
 
 
-def add_bulleted_item(doc, text):
+def add_bulleted_item(doc, text: str):
     """
-    Adds a single bullet item with a fixed indent of 0.25".
+    Add a bulleted list item to the document.
+
+    Creates a paragraph with bullet point styling and proper indentation.
+
+    Args:
+        doc: docx.Document object
+        text: Bullet point text content
+
+    Returns:
+        Created paragraph object
     """
     para = doc.add_paragraph(style='List Bullet')
     para_format = para.paragraph_format
@@ -70,13 +117,40 @@ def add_bulleted_item(doc, text):
     return para
 
 
-def generate_docx_from_json(resume_data: dict, output_path: str = "Praneeth_Ravuri_Tightened.docx"):
+def generate_docx_from_json(
+    resume_data: Union[dict, Resume],
+    output_path: str = "resume.docx"
+) -> str:
     """
-    Given a resume_data dictionary (parsed from JSON), build and save a .docx file
-    named output_path. resume_data must have keys: "header", "work_experience",
-    "education", "skills", "projects".
+    Generate a professionally formatted DOCX resume from structured data.
+
+    This function takes resume data (either as a dictionary or Pydantic Resume model)
+    and creates a formatted Microsoft Word document with proper styling, spacing,
+    and professional layout.
+
+    Args:
+        resume_data: Resume data as dictionary or Resume Pydantic model.
+            Must contain: header, work_experience, education, skills, projects
+        output_path: Output file path for the generated DOCX
+
+    Returns:
+        Path to the generated DOCX file
+
+    Raises:
+        ValidationError: If resume_data is invalid
+        IOError: If file cannot be written
+
+    Example:
+        >>> from src.models.resume import Resume
+        >>> resume = Resume(**json_data)
+        >>> output = generate_docx_from_json(resume, "my_resume.docx")
+        >>> print(f"Resume saved to: {output}")
     """
-    logger.info(f"Generating DOCX at '{output_path}'.")
+    # Convert to Resume model if dict
+    if isinstance(resume_data, dict):
+        resume_data = Resume(**resume_data)
+
+    logger.info(f"Generating DOCX resume at '{output_path}'")
     doc = Document()
 
     # -----------------------------
@@ -254,5 +328,7 @@ def generate_docx_from_json(resume_data: dict, output_path: str = "Praneeth_Ravu
     # -----------------------------
     # 8) Save the Document
     # -----------------------------
-    doc.save(output_path)
-    logger.info(f"✅ Document generated: {output_path}")
+    output = Path(output_path)
+    doc.save(str(output))
+    logger.info(f"✅ Document generated successfully: {output}")
+    return str(output)

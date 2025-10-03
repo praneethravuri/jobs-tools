@@ -1,73 +1,173 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import os
-from model import rephrase_content
+"""
+Send AI-generated personalized emails to multiple recipients.
 
-smtp_port = 587
-smtp_server = "smtp.gmail.com"
+This script sends customized emails using Ollama AI models for rephrasing
+each message to avoid repetition while maintaining authenticity.
+"""
 
-email_from = os.getenv('EMAIL_FROM')  # Hide email in environment variable
-email_list = [
-    {'name': 'Test1', 'email': 'Test1@gmail.com', 'company': 'TEst_Company', 'position': 'Software Engineer'},
-    {'name': 'Test20', 'email': 'Test21@gmail.com', 'company': 'TEst2_Company', 'position': 'Software Engineer'}
+import logging
+from typing import List, Dict
+from src.email.ai_generated.model import rephrase_content
+from src.email.email_sender import EmailSender
+from src.models.email import EmailRecipient, EmailMessage
+from src.config import get_settings
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Sample email list (replace with your actual recipients)
+SAMPLE_EMAIL_LIST = [
+    {'name': 'Test User', 'email': 'test@example.com', 'company': 'Example Corp', 'position': 'Software Engineer'},
 ]
 
-gmail_password = os.getenv('GMAIL_APP_PASSWORD')
+# Default email template
+DEFAULT_TEMPLATE_SUBJECT = "Discovering {position} opportunities at {company}"
+DEFAULT_TEMPLATE_BODY = """Hi {name},
 
+My name is [Your Name], and I am writing to express my interest in potential opportunities at {company}. I am a {position} with a strong background in developing scalable applications and a passion for leveraging technology to create impactful solutions. I hold a Master's degree in Computer Science from [Your University].
 
-def send_emails(email_list):
-    template_subject = "Discovering {position} opportunities at {company}"
-    template_body = """
-Hi {name},
+My technical skills include Python, JavaScript, TypeScript, React, Next.js, and MongoDB, among others. I have worked on diverse projects, including machine learning and full stack applications. I am particularly impressed by {company}'s commitment to innovation and excellence.
 
-My name is [REDACTED], and I am writing to express my interest in potential opportunities at {company}. I am a {position} with a strong background in developing scalable applications and a passion for leveraging technology to create impactful solutions. I hold a Master's degree in Computer Science from [REDACTED].
-
-My technical skills include Python, JavaScript, TypeScript, React, Next.js, and MongoDB, among others. I have worked on diverse projects, including machine learning and full stack applications. I am particularly impressed by {company}'s commitment to partnering with entrepreneurs from idea to IPO and your focus on fostering innovative, AI-driven companies.
-
-I believe that my expertise and enthusiasm for technology align well with {company}'s mission to support and develop the next generation of transformative tech companies. I am eager to bring fresh perspectives and new talent to your team and contribute to {company}'s legacy of success.
+I believe that my expertise and enthusiasm for technology align well with {company}'s mission. I am eager to bring fresh perspectives and new talent to your team and contribute to {company}'s continued success.
 
 Thank you for considering my application. I look forward to the possibility of discussing how I can contribute to your team.
-
 """
 
-    contact_info = """
+# Contact information footer
+CONTACT_INFO = """
 Best regards,
-[REDACTED]
-Website: [REDACTED]
-Phone: [REDACTED]
-LinkedIn: [REDACTED]
-GitHub: [REDACTED]
+[Your Name]
+Website: [Your Website]
+Phone: [Your Phone]
+LinkedIn: [Your LinkedIn]
+GitHub: [Your GitHub]
 """
 
-    for person in email_list:
-        subject = template_subject.format(position=person['position'], company=person['company'])
-        body = template_body.format(name=person['name'], position=person['position'], company=person['company'])
 
-        # Rephrase using the model
-        rephrased_subject = rephrase_content("phi3", subject, add_salutation=False).strip().replace("Investigating", "Discovering").replace("Uncovering", "Discovering").replace("Explore", "Exploring")
-        rephrased_body = rephrase_content("phi3", body, add_salutation=False).strip() + "\n" + contact_info
+def send_ai_generated_emails(
+    email_list: List[Dict[str, str]],
+    model_name: str = "phi3",
+    template_subject: str = DEFAULT_TEMPLATE_SUBJECT,
+    template_body: str = DEFAULT_TEMPLATE_BODY,
+    contact_info: str = CONTACT_INFO,
+    dry_run: bool = False
+) -> int:
+    """
+    Send AI-personalized emails to a list of recipients.
 
-        msg = MIMEMultipart()
-        msg['From'] = email_from
-        msg['To'] = person['email']
-        msg['Subject'] = rephrased_subject.replace('\n', ' ').replace('\r', '')
+    This function generates and sends personalized emails using AI rephrasing
+    to make each message unique while maintaining the core content. Each email
+    is rephrased individually to avoid spam filters and provide authentic outreach.
 
-        msg.attach(MIMEText(rephrased_body, 'plain'))
+    Args:
+        email_list: List of dictionaries with recipient information
+            Each dict should have: name, email, company, position
+        model_name: Ollama model to use for rephrasing (default: "phi3")
+        template_subject: Email subject template with placeholders
+        template_body: Email body template with placeholders
+        contact_info: Footer with contact information
+        dry_run: If True, generate emails but don't send them
 
-        text = msg.as_string()
+    Returns:
+        Number of emails successfully sent
 
-        print("Connecting to server...")
-        TIE_server = smtplib.SMTP(smtp_server, smtp_port)
-        TIE_server.starttls()
-        TIE_server.login(email_from, gmail_password)
-        print("Successfully connected to server")
+    Example:
+        >>> recipients = [
+        ...     {'name': 'John Doe', 'email': 'john@company.com',
+        ...      'company': 'TechCorp', 'position': 'Software Engineer'}
+        ... ]
+        >>> count = send_ai_generated_emails(recipients, dry_run=True)
+        >>> print(f"Generated {count} emails")
+    """
+    sent_count = 0
+    settings = get_settings()
 
-        print(f"Sending email to: {person['email']}...")
-        TIE_server.sendmail(email_from, person['email'], text)
-        print(f"Email sent to: {person['email']}")
-        print()
+    logger.info(f"Starting email campaign for {len(email_list)} recipients")
+    if dry_run:
+        logger.info("🔸 DRY RUN MODE - Emails will not be sent")
 
-    TIE_server.quit()
+    try:
+        with EmailSender() as sender:
+            for person_data in email_list:
+                try:
+                    # Validate recipient data
+                    recipient = EmailRecipient(**person_data)
 
-send_emails(email_list)
+                    # Generate email content
+                    subject = template_subject.format(
+                        position=recipient.position,
+                        company=recipient.company
+                    )
+                    body = template_body.format(
+                        name=recipient.name,
+                        position=recipient.position,
+                        company=recipient.company
+                    )
+
+                    # Rephrase content using AI
+                    logger.info(f"Generating personalized email for {recipient.name}")
+
+                    rephrased_subject = rephrase_content(
+                        model_name,
+                        subject,
+                        add_salutation=False
+                    ).strip()
+
+                    # Apply subject replacements for consistency
+                    rephrased_subject = (
+                        rephrased_subject
+                        .replace("Investigating", "Discovering")
+                        .replace("Uncovering", "Discovering")
+                        .replace("Explore", "Exploring")
+                        .replace('\n', ' ')
+                        .replace('\r', '')
+                    )
+
+                    rephrased_body = rephrase_content(
+                        model_name,
+                        body,
+                        add_salutation=False
+                    ).strip()
+
+                    # Add contact info
+                    full_body = f"{rephrased_body}\n{contact_info}"
+
+                    # Create email message
+                    message = EmailMessage(
+                        to_email=recipient.email,
+                        subject=rephrased_subject,
+                        body=full_body
+                    )
+
+                    # Send email (or skip if dry run)
+                    if dry_run:
+                        logger.info(f"[DRY RUN] Would send to: {recipient.email}")
+                        logger.info(f"Subject: {rephrased_subject}")
+                        sent_count += 1
+                    else:
+                        if sender.send_email(message):
+                            sent_count += 1
+
+                except Exception as e:
+                    logger.error(
+                        f"Error processing email for "
+                        f"{person_data.get('name', 'Unknown')}: {e}"
+                    )
+                    continue
+
+    except Exception as e:
+        logger.error(f"Email campaign failed: {e}")
+        raise
+
+    logger.info(f"✓ Email campaign complete. Sent {sent_count}/{len(email_list)} emails")
+    return sent_count
+
+
+if __name__ == "__main__":
+    # Use sample email list - replace with your actual recipients
+    # Set dry_run=False to actually send emails
+    send_ai_generated_emails(SAMPLE_EMAIL_LIST, dry_run=True)
